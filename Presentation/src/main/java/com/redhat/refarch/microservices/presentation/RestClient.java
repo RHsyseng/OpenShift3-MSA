@@ -539,6 +539,23 @@ public class RestClient
 		URIBuilder uriBuilder = new URIBuilder();
 		uriBuilder.setScheme( "http" );
 		StringWriter stringWriter = new StringWriter();
+		switch( service )
+		{
+			case Product:
+				uriBuilder.setHost( "product-service" );
+				break;
+
+			case Sales:
+				uriBuilder.setHost( "sales-service" );
+				break;
+
+			case Billing:
+				uriBuilder.setHost( "billing-service" );
+				break;
+
+			default:
+				throw new IllegalStateException( "Unknown service" );
+		}
 		uriBuilder.setPort( 8080 );
 		for( Object part : path )
 		{
