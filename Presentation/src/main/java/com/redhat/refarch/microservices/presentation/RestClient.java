@@ -90,7 +90,7 @@ public class RestClient
 		}
 	}
 
-	private static List<Map<String, Object>> getFeaturedProducts() throws IOException, JSONException, URISyntaxException, HttpErrorException
+	public static List<Map<String, Object>> getFeaturedProducts() throws IOException, JSONException, URISyntaxException, HttpErrorException
 	{
 		HttpClient client = new DefaultHttpClient();
 		URIBuilder uriBuilder = getUriBuilder( Service.Product, "products" );
@@ -628,6 +628,68 @@ public class RestClient
 	private static void logInfo(String message)
 	{
 		Logger.getLogger( RestClient.class.getName() ).log( Level.INFO, message );
+	}
+
+	public static Long addProduct(JSONObject jsonObject) throws JSONException, ClientProtocolException, IOException, URISyntaxException
+	{
+		HttpClient client = new DefaultHttpClient();
+		URIBuilder uriBuilder = getUriBuilder( Service.Product, "products" );
+		HttpPost post = new HttpPost( uriBuilder.build() );
+		post.setEntity( new StringEntity( jsonObject.toString(), ContentType.APPLICATION_JSON ) );
+		logInfo( "Executing " + post );
+		HttpResponse response = client.execute( post );
+		if( isError( response ) )
+		{
+			logInfo( "Failed to add product: " + EntityUtils.toString( response.getEntity() ) );
+			return null;
+		}
+		else
+		{
+			String responseString = EntityUtils.toString( response.getEntity() );
+			logInfo( "Got " + responseString );
+			return new JSONObject( responseString ).getLong( "sku" );
+		}
+	}
+
+	public static void addKeyword(JSONObject jsonObject) throws JSONException, ClientProtocolException, IOException, URISyntaxException
+	{
+		HttpClient client = new DefaultHttpClient();
+		URIBuilder uriBuilder = getUriBuilder( Service.Product, "keywords" );
+		HttpPost post = new HttpPost( uriBuilder.build() );
+		post.setEntity( new StringEntity( jsonObject.toString(), ContentType.APPLICATION_JSON ) );
+		logInfo( "Executing " + post );
+		HttpResponse response = client.execute( post );
+		if( isError( response ) )
+		{
+			logInfo( "Failed to add keyword" );
+		}
+		String responseString = EntityUtils.toString( response.getEntity() );
+		logInfo( "Got " + responseString );
+	}
+
+	public static void classifyProduct(long sku, List<String> keywords) throws JSONException, ClientProtocolException, IOException, URISyntaxException
+	{
+		HttpClient client = new DefaultHttpClient();
+		URIBuilder uriBuilder = getUriBuilder( Service.Product, "classify", sku );
+		HttpPost post = new HttpPost( uriBuilder.build() );
+		JSONArray jsonArray = new JSONArray();
+		for( String keyword : keywords )
+		{
+			JSONObject jsonObject = new JSONObject();
+			jsonObject.put( "keyword", keyword );
+			jsonArray.put( jsonObject );
+		}
+		post.setEntity( new StringEntity( jsonArray.toString(), ContentType.APPLICATION_JSON ) );
+		logInfo( "Executing " + post );
+		HttpResponse response = client.execute( post );
+		if( isError( response ) )
+		{
+			logInfo( "Failed to add keyword: " + EntityUtils.toString( response.getEntity() ) );
+		}
+		else
+		{
+			logInfo( "Got " + response.getStatusLine() );
+		}
 	}
 
 	private static Comparator<Order> reverseOrderNumberComparator = new Comparator<Order>()
