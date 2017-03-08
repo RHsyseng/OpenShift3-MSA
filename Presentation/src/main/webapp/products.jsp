@@ -25,7 +25,7 @@
 			</td>
 			<td style="border: 1px solid black; padding: 5px">
 				<p style="font-size: 1.5em">$${product.price}</p>
-				<p>Availability: ${product.availability}</p> <c:if
+				<p>In Stock: ${product.availability}</p> <c:if
 					test="${sessionScope.customer != null}">
 					<form target="_self" method="post">
 						<input type="hidden" name="sku" value="${product.sku}">
